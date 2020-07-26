@@ -1,0 +1,32 @@
+[
+  {
+    "Module": "PSFZF",
+    "Repo": "PSGallery",
+    "Scope": "CurrentUser"
+  },
+  {
+    "Module": "ZLocation",
+    "Repo": "PSGallery",
+    "Scope": "CurrentUser"
+  },
+  {
+    "Module": "cd-extras",
+    "Repo": "PSGallery",
+    "Scope": "CurrentUser"
+  },
+  {
+    "Module": "posh-git",
+    "Repo": "PSGallery",
+    "Scope": "CurrentUser"
+  },
+  {
+    "Module": "posh-p4",
+    "Repo": "PSGallery",
+    "Scope": "CurrentUser"
+  },
+  {
+    "Module": "Get-ChildItemColor",
+    "Repo": "PSGallery",
+    "Scope": "CurrentUser"
+  }
+]
