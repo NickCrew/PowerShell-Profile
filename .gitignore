@@ -1,3 +1,7 @@
 Modules/
 Scripts/
 **/pshistory.xml
+**/*.log
+Transcripts/
+PSTranscripts/
+.DS_Store
