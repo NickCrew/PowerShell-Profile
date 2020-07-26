@@ -11,3 +11,9 @@ The default user `$profile` is: `Microsoft.PowerShell_profile.ps1`
 ## Setup
 Optional setup scripts can be found under `Setup/..`.
 They are __not__ sourced during normal start-up.
+
+## Dependencies
+Certain functionality requires third-party dependencies to be installed and in your $PATH.
+
+- `fzf.exe` - FZF (Fuzzy Finder)
+- `rg.exe` - RipGrep (Ultra-Fast Code Searching)

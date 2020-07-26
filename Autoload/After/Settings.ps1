@@ -16,12 +16,13 @@ else {
 }
 
 ## Module: CD-Extras
-if ($null -ne (Get-Module -ListAvailable -Name cd-extras)) {
-    Set-CdExtrasOption -Option CD_PATH -Value (Join-Path "${Env:Home}" 'Source')
+if ($null -ne (Get-Module cd-extras)) {
+	Set-CdExtrasOption -Option CD_PATH -Value (Join-Path "${Env:Home}" 'Source')
 }
 
 ## Module: PSFZF
-if ($null -ne (Get-Module -ListAvailable -Name PSFZF)) {
+Set-PsFzfOption -TabExpansion
+if ($null -ne (Get-Module PSFZF -ListAvailable)) {
 	Remove-PSReadlineKeyHandler 'Ctrl+r'
 	Remove-PSReadlineKeyHandler 'Ctrl+t'
 }

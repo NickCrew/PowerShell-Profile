@@ -3,6 +3,57 @@
 PowerShell Functions
 #>
 
+function Invoke-FuzzyP4Client {
+    <#
+    .SYNOPSIS
+    Select a Perforce client using FZF (fuzzy search)
+    #>
+    [CmdletBinding()]
+    param (
+        # P4 Clients Root Directory
+        [Parameter(Position = 1, Mandatory = $false)]
+        [string]
+        $Top = 'C:\p4'
+    )
+    $ErrorActionPreference = 'Stop'
+
+    Set-Location $((Get-ChildItem $Top -Directory).FullName | fzf)
+
+    $name = Get-Location | Get-Item | Select-Object -ExpandProperty BaseName
+
+    p4 set p4client=${name}
+    if ($LASTEXITCODE -ne 0) {
+        throw "Error setting p4 client ${name}"
+    }
+    else {
+        Write-Verbose "Set P4 Client: ${name}"
+    }
+
+}
+
+function Invoke-FuzzyCodeWorkspace {
+    [CmdletBinding()]
+    param (
+        # Top of search tree
+        [Parameter(Position = 0, Mandatory = $false)]
+        [string]
+        $Top = '~/Source/VSCode_Workspaces',
+
+        # VSCode Flavor
+        [Parameter(Position = 1, Mandatory = $false)]
+        [string]
+        $Flavor = 'code-insiders'
+    )
+    $ErrorActionPreference = 'Stop'
+
+    $selection = $((Get-ChildItem $Top -File -Filter *.code-workspace).BaseName | fzf)
+    $fullpath = Get-ChildItem $Top -File -Filter *.code-workspace |
+                Where BaseName -eq $Selection |
+                Select-Object -ExpandProperty FullName
+
+    &${Flavor} $fullpath
+}
+
 function Set-P4Client {
     <#
     .SYNOPSIS
@@ -367,4 +418,40 @@ function Import-GoUtils {
     } | Select-Object -ExpandProperty FullName
 
     Import-Module $goUtilsModulePath
+}
+
+
+function Invoke-FuzzyRgEdit {
+    <#
+    .SYNOPSIS
+    Pipes results of rg into fzf and opens the selection in $EDITOR
+    #>
+    [CmdletBinding()]
+    param (
+        # Pattern
+        [Parameter(Position = 0, Mandatory = $true)]
+        [string]
+        $Pattern,
+
+        # Editor
+        [Parameter(Position = 1, Mandatory = $false)]
+        [string]
+        $Editor = $Env:Editor,
+
+        # Search file names
+        [switch]
+        $Files = $false
+    )
+
+    if ([String]::IsNullOrEmpty($Editor)) {
+        $Editor = 'gvim'
+    }
+
+    if ($Files) {
+        &${Editor} $(rgf $Pattern | fzf)
+    }
+    else {
+        &${Editor} $((rg $Pattern | fzf).Split(":")[0])
+    }
+
 }
