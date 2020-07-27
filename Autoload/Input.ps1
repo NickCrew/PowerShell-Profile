@@ -13,3 +13,6 @@ Set-PSReadlineKeyHandler -Key Alt+r -Function ViSearchHistoryBackward
 
 ## Completion
 Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+# When using PSFZF, these key handlers must be removed BEFORE importing the module
+Remove-PSReadlineKeyHandler 'Ctrl+r'
+Remove-PSReadlineKeyHandler 'Ctrl+t'

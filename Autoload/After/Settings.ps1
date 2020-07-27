@@ -3,26 +3,24 @@
 PowerShell Settings
 
 .NOTES
-To be sourced at end of $profile
-Place in autoload/after/..
+Location: autoload/after/..
+
+Sourced after all additional modules are imported
+
 #>
 
 
 if (${Env:OS} -eq 'Windows_NT') {
-
+	# Place Windows-only settings here
 }
 else {
-
+	# Place *nix settings here
 }
 
-## Module: CD-Extras
 if ($null -ne (Get-Module cd-extras)) {
-	Set-CdExtrasOption -Option CD_PATH -Value (Join-Path "${Env:Home}" 'Source')
+	Set-CdExtrasOption -Option CD_PATH -Value (Join-Path "${Env:Home}" 'Source') -ErrorAction SilentlyContinue
 }
 
-## Module: PSFZF
-Set-PsFzfOption -TabExpansion
-if ($null -ne (Get-Module PSFZF -ListAvailable)) {
-	Remove-PSReadlineKeyHandler 'Ctrl+r'
-	Remove-PSReadlineKeyHandler 'Ctrl+t'
+if ($null -ne (Get-Module PSFZF)) {
+	Set-PsFzfOption -TabExpansion
 }
