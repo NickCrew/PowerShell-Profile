@@ -3,16 +3,14 @@
 PowerShell Profile - Primary
 #>
 
-## NOTE: Only the top-level of Autoload/.. is sourced at the beginning of $Profile
-## The autoload/after directory is not sourced until the end of this file
+## Vars
+$env:Editor = 'gvim'
+
+# NOTE: Autoload/after/.. is to be sourced LAST
 $autoload = Join-Path $(split-path $profile) 'autoload'
 $after = Join-Path $autoload 'after'
 
-Get-ChildItem $autoload -File -Filter *.ps1 | Foreach-Object {
-    . $_.FullName
-}
-
-## Import any auxialiary modules
+## Import modules
 $RequiredModules = @(
 	'Get-ChildItemColor',
 	'PSFZF',
@@ -22,11 +20,18 @@ $RequiredModules = @(
 	)
 
 $RequiredModules | Foreach-Object {
-	Import-Module $_ -ErrorAction Continue
+	Import-Module $_ -ErrorAction SilentlyContinue
 }
 
+## autoload/..
+gci $autoload -Exclude after | gci -File -Recurse -Filter *.ps1  | % {
+	. $_.FullName
+}
 
-## Load after/..
-Get-ChildItem $after -File -Filter *.ps1 | ForEach-Object {
+Set-CdExtrasOption -Option CD_PATH -Value (Join-Path "${Env:Home}" 'Source') -ErrorAction SilentlyContinue
+Set-PsFzfOption -TabExpansion -ErrorAction SilentlyContinue
+
+## after/..
+Get-ChildItem $after -Recurse -File -Filter *.ps1 | ForEach-Object {
 	. $_.FullName
 }

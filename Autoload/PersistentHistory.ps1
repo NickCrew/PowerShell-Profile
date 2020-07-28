@@ -6,6 +6,8 @@ Persistent PowerShell history
 You must close your shell with 'exit' or the event which
 write that session's history will not be triggered
 
+PSReadline history is separate from Get-History
+
 #>
 param (
     [string]$HistFileName = 'pshistory.xml'

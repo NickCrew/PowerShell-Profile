@@ -6,21 +6,6 @@ PowerShell Prompt Configuration
 Requires the PoSh-Git module
 #>
 
-#region Functions
-function Initialize-P4Prompt {
-    function global:prompt {
-        $realLASTEXITCODE = $LASTEXITCODE
-
-        Write-Host($pwd.ProviderPath) -nonewline
-
-        #perforce status
-        Write-P4Prompt
-
-        $global:LASTEXITCODE = $realLASTEXITCODE
-        return "> "
-    }
-
-}
 
 # Set up a simple prompt, adding the git prompt parts inside git repos
 function global:prompt {
@@ -58,5 +43,3 @@ $s.IndexForegroundColor                 = $s.IndexForegroundBrightColor
 $s.WorkingForegroundColor               = $s.WorkingForegroundBrightColor
 
 Pop-Location
-
-#endregion

@@ -54,6 +54,21 @@ function Invoke-FuzzyCodeWorkspace {
     &${Flavor} $fullpath
 }
 
+function Initialize-P4Prompt {
+    function global:prompt {
+        $realLASTEXITCODE = $LASTEXITCODE
+
+        Write-Host($pwd.ProviderPath) -nonewline
+
+        #perforce status
+        Write-P4Prompt
+
+        $global:LASTEXITCODE = $realLASTEXITCODE
+        return "> "
+    }
+
+}
+
 function Set-P4Client {
     <#
     .SYNOPSIS
