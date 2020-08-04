@@ -15,6 +15,7 @@ Set-ALias -Name fcode -Value Invoke-FuzzyCodeWorkspace
 
 
 # FZF
+Set-Alias -Name cde -Value Set-LocationFuzzyEverything
 Set-Alias -Name fz -Value Invoke-FuzzyZLocation
 Set-Alias -Name fe -Value Invoke-FuzzyEdit
 Set-Alias -Name fd -Value Invoke-FuzzySetLocation

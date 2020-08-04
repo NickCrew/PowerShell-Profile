@@ -13,20 +13,40 @@ function Invoke-FuzzyP4Client {
         # P4 Clients Root Directory
         [Parameter(Position = 1, Mandatory = $false)]
         [string]
-        $Top = 'C:\p4'
+        $Top = 'C:\p4',
+
+        # P4 Username
+        [Parameter(Position = 2, Mandatory = $false)]
+        [string]
+        $P4User = $env:P4User
     )
     $ErrorActionPreference = 'Stop'
 
-    Set-Location $((Get-ChildItem $Top -Directory).FullName | fzf)
+    $clients = New-Object System.Collections.ArrayList
 
-    $name = Get-Location | Get-Item | Select-Object -ExpandProperty BaseName
+    $clientsRaw = p4 clients -u $P4User
+    foreach ($c in $clientsRaw) {
+        $name = ($c -split '\s')[1]
+        $clients.Add($name) | Out-Null
+    }
 
-    p4 set p4client=${name}
-    if ($LASTEXITCODE -ne 0) {
-        throw "Error setting p4 client ${name}"
+    $selection = ($clients | fzf)
+
+    $WorkspaceDir = Join-Path $Top $selection
+
+    if (Test-Path $WorkspaceDir) {
+        Set-Location $WorkspaceDir
     }
     else {
-        Write-Verbose "Set P4 Client: ${name}"
+        New-Item $WorkspaceDir -ItemType Directory -Force
+    }
+
+    p4 set p4client=${selection}
+    if ($LASTEXITCODE -ne 0) {
+        throw "Error setting p4 client ${selection}"
+    }
+    else {
+        Write-Verbose "Set P4 Client: ${selection}"
     }
 
 }
