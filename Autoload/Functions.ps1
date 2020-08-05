@@ -39,6 +39,7 @@ function Invoke-FuzzyP4Client {
     }
     else {
         New-Item $WorkspaceDir -ItemType Directory -Force
+        Set-Location $WorkspaceDir
     }
 
     p4 set p4client=${selection}
