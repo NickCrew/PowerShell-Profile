@@ -15,7 +15,16 @@ function global:prompt {
     #$Host.UI.RawUI.ForegroundColor = $GitPromptSettings.DefaultForegroundColor
 
     # Write-Host($pwd.ProviderPath) -nonewline
-    Write-Host($pwd.ProviderPath)
+    Write-Host($pwd.ProviderPath) -NoNewline
+
+    if ($global:showP4Prompt) {
+        if ($global:showp4Status4nonstream) {
+            Write-P4Prompt -showAll
+        }
+        else {
+            Write-P4Prompt
+        }
+    }
 
     Write-VcsStatus
 
@@ -26,7 +35,8 @@ function global:prompt {
 #endregion
 
 #region Script
-Import-Module PoSh-Git -ErrorAction 'Stop'
+Import-Module PoSh-Git
+Import-Module Posh-p4
 
 # Override some Git colors
 

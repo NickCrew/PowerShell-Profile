@@ -1,8 +1,5 @@
-<#
-.SYNOPSIS
-PowerShell Functions
-#>
 
+#region Functions
 function Invoke-FuzzyP4Client {
     <#
     .SYNOPSIS
@@ -47,6 +44,7 @@ function Invoke-FuzzyP4Client {
         throw "Error setting p4 client ${selection}"
     }
     else {
+        $env:P4Client = $selection
         Write-Verbose "Set P4 Client: ${selection}"
     }
 
@@ -58,7 +56,7 @@ function Invoke-FuzzyCodeWorkspace {
         # Top of search tree
         [Parameter(Position = 0, Mandatory = $false)]
         [string]
-        $Top = '~/Source/VSCode_Workspaces',
+        $Top = '~/Source/VSCode-Workspaces',
 
         # VSCode Flavor
         [Parameter(Position = 1, Mandatory = $false)]
@@ -209,7 +207,7 @@ function Open-VSCodeWorkspace {
         [Parameter(Position = 0, Mandatory = $false)]
         [ValidateScript({Test-Path $_})]
         [string]
-        $Top = '~/Source/VSCode_Workspaces'
+        $Top = '~/VSCode-Workspaces'
     )
     $ErrorActionPreference = 'Stop'
 
@@ -441,22 +439,6 @@ function Initialize-Anaconda {
     }
 }
 
-function Import-GoUtils {
-    $top = Join-Path (Get-location).drive.root 'p4'
-
-    $p4Dir = Get-ChildItem $top -Directory | Where-Object {
-        $_.BaseName -match 'DevOps' -or
-        $_.BaseName -match 'GoUtils'
-    } | Select-Object -First 1 -ExpandProperty FullName
-
-    $goUtilsModulePath = Get-ChildItem $p4Dir -Depth 2 -File -Filter *.psd1 | Where-Object {
-        $_.BaseName -match 'goUtils'
-    } | Select-Object -ExpandProperty FullName
-
-    Import-Module $goUtilsModulePath
-}
-
-
 function Invoke-FuzzyRgEdit {
     <#
     .SYNOPSIS
@@ -491,10 +473,15 @@ function Invoke-FuzzyRgEdit {
     }
 
 }
+#endregion
 
-function Import-GoUtils {
-	$goutils = 'C:\p4\nferguson_NF7590_DevOps_MAIN_8842\GoCD\GoUtils\GoUtils.psd1'
-	if (Test-Path $goutils) {
-		Import-Module $goutils
-	}
-}
+#region Aliases
+Set-Alias -Name sclip -Value Set-Clipboard
+Set-Alias -name ocw -Value Open-VSCodeWorkspace
+Set-Alias -Name fdrepo -Value Find-GitRepos
+Set-Alias -Name codei -Value Open-VSCodeInsiders
+Set-Alias -Name setp4 -Value Set-P4Client
+Set-Alias -Name frg -Value Invoke-FuzzyRgEdit
+Set-Alias -Name fp4 -Value Invoke-FuzzyP4Client
+Set-ALias -Name fcw -Value Invoke-FuzzyCodeWorkspace
+#endregion

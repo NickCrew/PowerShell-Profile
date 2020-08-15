@@ -13,11 +13,12 @@ param (
     [string]$HistFileName = 'pshistory.xml'
 )
 
+
 $MaximumHistoryCount = 500
 $HistoryFilePath = Join-Path (Split-Path $profile) ${HistFileName}
 
 Register-EngineEvent PowerShell.Exiting -Action {
-    Get-History | Export-Clixml $HistoryFilePath
+	Get-History | Export-Clixml $HistoryFilePath
 } | Out-Null
 
 if (Test-path $HistoryFilePath) {
