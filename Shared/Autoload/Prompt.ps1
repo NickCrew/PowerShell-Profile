@@ -18,10 +18,7 @@ function global:prompt {
     Write-Host($pwd.ProviderPath) -NoNewline
 
     if ($global:showP4Prompt) {
-        if ($global:showp4Status4nonstream) {
-            Write-P4Prompt -showAll
-        }
-        else {
+        if ($global:showP4Prompt) {
             Write-P4Prompt
         }
     }

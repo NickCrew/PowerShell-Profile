@@ -330,6 +330,8 @@ function Start-ShellTranscript {
     Write-Verbose "Starting transcript at: ${OutFilePath}"
 
     Start-Transcript $OutFilePath
+
+    $PSCmdlet.MyInvocation.MyCommand
 }
 
 function Invoke-ChocoInstall ($arg) {
