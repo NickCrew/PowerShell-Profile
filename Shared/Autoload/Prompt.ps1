@@ -17,12 +17,6 @@ function global:prompt {
     # Write-Host($pwd.ProviderPath) -nonewline
     Write-Host($pwd.ProviderPath) -NoNewline
 
-    if ($global:showP4Prompt) {
-        if ($global:showP4Prompt) {
-            Write-P4Prompt
-        }
-    }
-
     Write-VcsStatus
 
     $Host.UI.RawUI.WindowTitle = "..\$(Split-path (Split-Path (get-location).path -parent) -leaf)\$(split-path (get-location) -leaf)"
@@ -33,7 +27,6 @@ function global:prompt {
 
 #region Script
 Import-Module PoSh-Git
-Import-Module Posh-p4
 
 # Override some Git colors
 
