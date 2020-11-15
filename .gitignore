@@ -3,6 +3,5 @@ Scripts/
 **/pshistory.xml
 **/*.log
 Transcripts/
-PSTranscripts/
 .DS_Store
-secrets.psd1
+Vispero.*

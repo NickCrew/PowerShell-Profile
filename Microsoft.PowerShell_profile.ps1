@@ -7,18 +7,23 @@ $env:VMWARE_HOME = Join-Path "${env:ProgramFiles(x86)}" 'VMWare/VMWare Workstati
 $env:P4_ROOTDIR = 'C:\p4'
 $env:Editor = 'gvim'
 
+
+Set-PSReadlineOption -EditMode vi -BellStyle None
+Set-PSReadlineOption -BellStyle None
+Set-PSReadlineKeyHandler -Chord Ctrl+Alt+s -Function SwapCharacters
+Set-PSReadlineKeyHandler -Key Alt+r -Function ViSearchHistoryBackward
+Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+
 $shared = Join-path $(split-path $profile) 'Shared'
 
+Set-Variable -Name PSUserHome -Value ((Resolve-Path $PSScriptRoot).Path) -Option AllScope,ReadOnly -Force
 
-gci "${shared}\Autoload" -exclude after -Filter *.ps1 -Recurse | % {
+. "${PSScriptRoot}/Shared/Prompts/git.prompt.ps1"
+
+Get-ChildItem "${shared}\Autoload" -exclude after -Filter *.ps1 -Recurse | % {
     . $_.FullName
 }
 
-gci "${shared}\Autoload\After"  -Filter *.ps1 -Recurse | % {
+Get-ChildItem "${shared}\Autoload\After"  -Filter *.ps1 -Recurse | % {
     . $_.FullName
 }
-
-
-Import-Module posh-git
-Import-Module oh-my-posh -RequiredVersion 2.0.487
-Set-Theme pure

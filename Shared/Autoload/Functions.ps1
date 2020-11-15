@@ -1,10 +1,17 @@
 
+function Invoke-CommandAsAdmin ( $ArgumentList ) {
+	if ($ArgumentList.Count -gt 1) {
+		$ArgumentList = $ArgumentList -join " "
+	}
+	Start-Process pwsh.exe -Verb RunAs -ArgumentList "-Command ${ArgumentList}"
+}
+
 #region Functions
 function Invoke-FuzzyP4Client {
-    <#
-    .SYNOPSIS
+<#
+.SYNOPSIS
     Select a Perforce client using FZF (fuzzy search)
-    #>
+#>
     [CmdletBinding()]
     param (
         # P4 Clients Root Directory
@@ -50,189 +57,6 @@ function Invoke-FuzzyP4Client {
 
 }
 
-function Invoke-FuzzyCodeWorkspace {
-    [CmdletBinding()]
-    param (
-        # Top of search tree
-        [Parameter(Position = 0, Mandatory = $false)]
-        [string]
-        $Top = '~/Source/VSCode-Workspaces',
-
-        # VSCode Flavor
-        [Parameter(Position = 1, Mandatory = $false)]
-        [string]
-        $Flavor = 'code-insiders'
-    )
-    $ErrorActionPreference = 'Stop'
-
-    $selection = $((Get-ChildItem $Top -File -Filter *.code-workspace).BaseName | fzf)
-    $fullpath = Get-ChildItem $Top -File -Filter *.code-workspace |
-                Where BaseName -eq $Selection |
-                Select-Object -ExpandProperty FullName
-
-    &${Flavor} $fullpath
-}
-
-function Initialize-P4Prompt {
-    function global:prompt {
-        $realLASTEXITCODE = $LASTEXITCODE
-
-        Write-Host($pwd.ProviderPath) -nonewline
-
-        #perforce status
-        Write-P4Prompt
-
-        $global:LASTEXITCODE = $realLASTEXITCODE
-        return "> "
-    }
-
-}
-
-function Set-P4Client {
-    <#
-    .SYNOPSIS
-    List and select Perforce client directories
-    #>
-    Param(
-        # Search Pattern
-        [Parameter(Position = 0, Mandatory = $false)]
-        [string]
-        $Pattern,
-
-        # P4 Clients Root Directory
-        [Parameter(Position = 1, Mandatory = $false)]
-        [string]
-        $Top = 'C:\p4'
-    )
-    $ErrorActionPreference = 'Stop'
-
-    $dirs = [System.Collections.ArrayList] @()
-
-    if (-not [String]::IsNullOrEmpty($Pattern)) {
-        $Found = Get-ChildItem $Top -Directory | Where BaseName -match $Pattern
-
-        if ($Found.Count -gt 1) {
-            $counter = 1
-            foreach ($f in $Found) {
-                $obj = [pscustomobject] @{
-                    Id = $counter
-                    Name = $f.BaseName
-                    Path = $f.FullName
-                }
-                $dirs.Add($obj) | Out-Null
-                $counter++
-            }
-        }
-        else {
-            $clientName = $Found.BaseName
-            Set-Location $Found.FullName
-
-            p4 set p4client=$clientName
-            if ($LASTEXITCODE -ne 0) {
-                throw "Failed to set p4 client to ${clientName}"
-            }
-
-            return $true
-        }
-    }
-    else {
-        $counter = 1
-        Get-ChildItem $Top -Directory  | ForEach-Object {
-            $obj = [pscustomobject] @{
-                Id = $counter
-                Name = $_.BaseName
-                Path = $_.FullName
-            }
-            $dirs.Add($obj) | out-null
-            $counter++
-        }
-    }
-
-    $dirs | Select-Object -Property Id, Name | Format-Table
-
-    [int]$selection = Read-Host "Select Workspace"
-
-    $x = $dirs | Where-Object {
-        $_.Id -eq $selection
-    }
-    $selPath = $x.Path
-    $clientName = Split-Path $x.Path -leaf
-
-    Set-Location $selpath
-    p4 set p4client=$clientName
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to set p4 client to ${clientName}"
-    }
-
-    return $true
-}
-
-function Search-CalibreDb {
-	<#
-	.SYNOPSIS
-	Search the calibre database with a term
-
-	#>
-
-	[CmdletBinding()]
-	param (
-		[Parameter(Mandatory=$true,Position=0)]
-		[string]
-		$SearchTerm
-	)
-
-	$query = Invoke-Expression "calibredb search '${SearchTerm}'"
-	$found = $query -split ','
-	$results = [System.Collections.ArrayList]@()
-	foreach ($id in $found) {
-		[regex]$rx = "^\d+(?=\s+)"
-		$db = Invoke-Expression "calibredb list"
-		$query = $db | Where-Object {
-			$rx.Match($_).Value -eq $Id
-		}
-
-		$results.Add($query) | Out-Null
-	}
-	return $results
-}
-
-function Open-VSCodeWorkspace {
-    <#
-    .SYNOPSIS
-    List and Open VSCode workspaces
-
-    #>
-    Param(
-        # VSCode Workspaces DIr
-        [Parameter(Position = 0, Mandatory = $false)]
-        [ValidateScript({Test-Path $_})]
-        [string]
-        $Top = '~/VSCode-Workspaces'
-    )
-    $ErrorActionPreference = 'Stop'
-
-
-    $dirs = @{}
-    $i = 1
-    Get-ChildItem $Top -Recurse -File -Filter *.code-workspace | ForEach-Object {
-        $fullPath = $_.FullName
-        $displayPath = $_.BaseName
-
-        $dirs.Add($i, $fullPath)
-        Write-Host "$i : $displayPath"
-        $i++
-    }
-    [int]$selection = Read-Host "Open Workspace"
-
-    $p = ($dirs.GetEnumerator() | Where-Object {
-            $_.Key -eq $selection
-        } | Select-Object -ExpandProperty Value)
-
-    if (Test-Path $p)
-    {
-        cmd.exe /c code-insiders $p
-    }
-}
 
 function Find-GitRepos {
     <#
@@ -334,97 +158,35 @@ function Start-ShellTranscript {
     $PSCmdlet.MyInvocation.MyCommand
 }
 
-function Invoke-ChocoInstall ($arg) {
-    Start-Process powershell -Verb Runas -ArgumentList "choco install $arg"
-}
 
-function Open-VSCodeInsiders ($arg) {
-    Invoke-Expression "code-insiders $arg"
-}
-
-function Find-Proc {
+function Find-Process {
 	param (
 		[Parameter(Position = 0, Mandatory = $true)]
 		[string]
-		$Name,
-
-		[switch]
-		$Sigterm = $false
+		$Name
 	)
 
-	$result = Get-Process | Where Name -match $arg
+	$result = Get-Process | Where-Object {
+        $_.Name -match $arg
+    }
 
-	if ($Sigterm) {
-		Stop-Process -Id $result.Id -Verbose
-	}
-	else {
-		return $result
-	}
+    return $result
 }
 
-function Open-DevP4 {
-    <#
-    .SYNOPSIS
-    Launch devLaunchVS.bat for the current p4 workspace (if exists)
-    #>
-
-    param (
-        # Depth to search
-        [Parameter(Position=0,Mandatory=$false)]
-        [int32]
-        $SearchDepth = 2
-    )
-
-    $clientSpec = p4 client -o
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed getting client specification."
-    }
-
-    $p4Dir = (($clientSpec | Select-String "^Root") -split '\s+')[1]
-
-    if (Test-Path $p4Dir) {
-        $collect = New-Object System.Collections.ArrayList
-        $counter = 0
-        Get-ChildItem $p4dir -File -Depth $SearchDepth -Filter DevLaunchVS.bat | ForEach-Object {
-            $p = Split-Path $_.FullName -Parent
-            $obj = [PScustomObject] @{
-                Id = $counter
-                Project = $p
-                Fullpath = $_.FullName
-            }
-            $collect.Add($obj) | Out-Null
-            $counter++
-        }
-        $collect | Select-Object -Property Id, Project | Format-Table
-
-        [int]$selection = Read-Host "Select Workspace"
-
-        $x = $dirs | Where-Object {
-            $_.Id -eq $selection
-        }
-
-        $path = $x.FullPath
-
-        & cmd.exe /c $path
-    }
-    else {
-        throw "${p4Dir} does not exist"
-    }
-}
 
 function rgf ($arg) {
-    <#
-    .SYNOPSIS
+<#
+.SYNOPSIS
     Use Ripgrep to search for filenames
-    #>
+#>
 	rg --files | rg $arg
 }
 
-function rmrf ($arg) {
-    <#
-    .SYNOPSIS
+function Remove-ItemRecursiveForced ($arg) {
+<#
+.SYNOPSIS
     Recursively and forcefully removing all sub-directories and files under $arg
-    #>
+#>
 	$p = @{
 		Path    = $arg
 		Force   = $true
@@ -434,18 +196,13 @@ function rmrf ($arg) {
 	Remove-Item @p
 }
 
-function Initialize-Anaconda {
-    $condaExe = Join-Path ${env:Home} 'anaconda3\Scripts\conda.exe'
-    if (Test-Path $condaExe) {
-        (& "${condaExe}" "shell.powershell" "hook") | Out-String | Invoke-Expression
-    }
-}
+
 
 function Invoke-FuzzyRgEdit {
-    <#
-    .SYNOPSIS
+<#
+.SYNOPSIS
     Pipes results of rg into fzf and opens the selection in $EDITOR
-    #>
+#>
     [CmdletBinding()]
     param (
         # Pattern
@@ -478,12 +235,10 @@ function Invoke-FuzzyRgEdit {
 #endregion
 
 #region Aliases
-Set-Alias -Name sclip -Value Set-Clipboard
-Set-Alias -name ocw -Value Open-VSCodeWorkspace
-Set-Alias -Name fdrepo -Value Find-GitRepos
-Set-Alias -Name codei -Value Open-VSCodeInsiders
-Set-Alias -Name setp4 -Value Set-P4Client
-Set-Alias -Name frg -Value Invoke-FuzzyRgEdit
-Set-Alias -Name fp4 -Value Invoke-FuzzyP4Client
-Set-ALias -Name fcw -Value Invoke-FuzzyCodeWorkspace
+Set-Alias -Name sclip -Value Set-Clipboard -Force
+Set-Alias -Name fdrepo -Value Find-GitRepos -Force
+Set-Alias -Name frg -Value Invoke-FuzzyRgEdit -Force
+Set-Alias -Name fp4 -Value Invoke-FuzzyP4Client -Force
+Set-Alias -Name rrf -Value Remove-ItemRecursiveForced -Force
+Set-Alias -Name fdproc -Value Find-Process -Force
 #endregion

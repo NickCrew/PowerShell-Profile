@@ -12,9 +12,8 @@ function global:prompt {
     $realLASTEXITCODE = $LASTEXITCODE
 
     # # Reset color, which can be messed up by Enable-GitColors
-    #$Host.UI.RawUI.ForegroundColor = $GitPromptSettings.DefaultForegroundColor
+    $Host.UI.RawUI.ForegroundColor = $GitPromptSettings.DefaultForegroundColor
 
-    # Write-Host($pwd.ProviderPath) -nonewline
     Write-Host($pwd.ProviderPath) -NoNewline
 
     Write-VcsStatus
@@ -27,6 +26,9 @@ function global:prompt {
 
 #region Script
 Import-Module PoSh-Git
+Import-Module oh-my-posh -RequiredVersion 2.0.487
+Set-Theme pure
+
 
 # Override some Git colors
 
