@@ -239,6 +239,6 @@ Set-Alias -Name sclip -Value Set-Clipboard -Force
 Set-Alias -Name fdrepo -Value Find-GitRepos -Force
 Set-Alias -Name frg -Value Invoke-FuzzyRgEdit -Force
 Set-Alias -Name fp4 -Value Invoke-FuzzyP4Client -Force
-Set-Alias -Name rrf -Value Remove-ItemRecursiveForced -Force
+Set-Alias -Name obliterate -Value Remove-ItemRecursiveForced -Force
 Set-Alias -Name fdproc -Value Find-Process -Force
 #endregion
