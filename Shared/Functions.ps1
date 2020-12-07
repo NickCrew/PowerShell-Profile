@@ -1,4 +1,7 @@
 
+function to ($target) { &$target $input }
+
+Set-Alias -Name asadmin -Value Invoke-CommandAsAdmin
 function Invoke-CommandAsAdmin ( $ArgumentList ) {
 	if ($ArgumentList.Count -gt 1) {
 		$ArgumentList = $ArgumentList -join " "
@@ -7,6 +10,7 @@ function Invoke-CommandAsAdmin ( $ArgumentList ) {
 }
 
 #region Functions
+Set-Alias -Name fp4 -Value Invoke-FuzzyP4Client -Force
 function Invoke-FuzzyP4Client {
 <#
 .SYNOPSIS
@@ -58,6 +62,7 @@ function Invoke-FuzzyP4Client {
 }
 
 
+Set-Alias -Name fdrepo -Value Find-GitRepos -Force
 function Find-GitRepos {
     <#
     .SYNOPSIS
@@ -159,6 +164,7 @@ function Start-ShellTranscript {
 }
 
 
+Set-Alias -Name fdproc -Value Find-Process -Force
 function Find-Process {
 	param (
 		[Parameter(Position = 0, Mandatory = $true)]
@@ -182,6 +188,7 @@ function rgf ($arg) {
 	rg --files | rg $arg
 }
 
+Set-Alias -Name obliterate -Value Remove-ItemRecursiveForced -Force
 function Remove-ItemRecursiveForced ($arg) {
 <#
 .SYNOPSIS
@@ -198,6 +205,7 @@ function Remove-ItemRecursiveForced ($arg) {
 
 
 
+Set-Alias -Name frg -Value Invoke-FuzzyRgEdit -Force
 function Invoke-FuzzyRgEdit {
 <#
 .SYNOPSIS
@@ -236,9 +244,4 @@ function Invoke-FuzzyRgEdit {
 
 #region Aliases
 Set-Alias -Name sclip -Value Set-Clipboard -Force
-Set-Alias -Name fdrepo -Value Find-GitRepos -Force
-Set-Alias -Name frg -Value Invoke-FuzzyRgEdit -Force
-Set-Alias -Name fp4 -Value Invoke-FuzzyP4Client -Force
-Set-Alias -Name obliterate -Value Remove-ItemRecursiveForced -Force
-Set-Alias -Name fdproc -Value Find-Process -Force
 #endregion

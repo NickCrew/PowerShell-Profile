@@ -1,14 +1,17 @@
-# sourced by all other profiles
-#
+# Name: profile.ps1
+# Profile: CurrentUserAllHosts
+# Loads after: AllUsers, AllHosts
+# Loads before: CurrentUserCurrentHost
+# PSVersion: 7
+
+# PSReadline
+Set-PSReadlineOption -EditMode vi -BellStyle None
+Set-PSReadlineOption -BellStyle None
+Set-PSReadlineKeyHandler -Chord Ctrl+Alt+s -Function SwapCharacters
+Set-PSReadlineKeyHandler -Key Alt+r -Function ViSearchHistoryBackward
+Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+
+# Completion
 TabExpansion2.ps1
 Invoke-Build.ArgumentCompleters.ps1
-
-Set-Alias -Name code -Value code-insiders.cmd -Force
-Set-Alias -Name code.cmd -Value code-insiders.cmd -Force
-
-Set-Alias -Name iconda -Value Initialize-Anaconda -Force
-function Initialize-Anaconda {
-	# !! Contents within this block are managed by 'conda init' !!
-	(& "${HOME}\anaconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | Invoke-Expression
-}
-
+gci "${PSScriptRoot}/Shared/Completions" -Filter *.ps1 -Recurse | % { . $_.FullName }

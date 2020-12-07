@@ -1,44 +1,20 @@
-# PowerShell Profile
-The default user `$profile` is: `Microsoft.PowerShell_profile.ps1`
+# PowerShell 7 User Profile
 
-## Auto-Loading Sequence
-1. Source all `*.ps1` files under the __top-level only__ of `Autoload/..`
-2. Attempt to import all `$RequiredModules`
-3. ???
-4. Source all `*.ps1` files under `Autoload/after/..`
+## Load Order
+1. AllUsersAllHosts
+2. AllUsersCurrentHost
+3. CurrentUserAllHosts
+4. CurrentUserCurrentHost
 
+## External Dependencies
 
-## Setup
-Optional setup scripts can be found under `Setup/..`.
-They are __not__ sourced during normal start-up.
-
-## Dependencies
-
-### PowerShell Modules
-Install all recommended modules using the script provided at
+### FZF 
 ````pwsh
-Setup\import.ps1
+choc install fzf
+Install-Module PSFZF
 ````
-Modules to install are defined in `Setup\required_modules.json`
-Installs:
-- PSFZF
-- ZLocation
-- cd-extras
-- posh-git
-- posh-p4
-- Get-ChildItemColor
 
-
-### Executables
-Certain functionality requires third-party dependencies to be installed and in your $PATH.
-
-- `fzf.exe` - FZF (Fuzzy Finder)
-- `rg.exe` - RipGrep (Ultra-Fast Code Searching)
-
-[Chocolatey is the recommended package manager.]( https://chocolatey.org/packages )
-
-In a `powershell.exe` session with __admin__ privileges:
+### RipGrep
 ````pwsh
-choco install fzf
 choco install ripgrep
 ````
