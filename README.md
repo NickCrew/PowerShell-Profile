@@ -1,17 +1,17 @@
-# PowerShell 7 User Profile
+# PowerShell User Profile
 
-## Load Order
-1. AllUsersAllHosts
-2. AllUsersCurrentHost
-3. CurrentUserAllHosts
-4. CurrentUserCurrentHost
+Includes (by load order):
+1. CurrentUserAllHosts (`profile.ps1`)
+2. CurrentUserCurrentHost (`Microsoft.PowerShell_profile.ps1`)
+
 
 ## Module and Script Dependencies
 
-I like running the betas for PSReadline and oh-my-posh because there's a lot of cool stuff being added all the time.
+These are the modules or scripts required for full functionality of profile components.
+I like running the betas for _PSReadline_ and _oh-my-posh_ because there's a lot of cool stuff being added all the time.
 
 ````powershell
-Install-Module Posh-git,PSFZF,Get-ChildItemColor,zlocation -Scope CurrentUser
+Install-Module Posh-git,PSFZF,zlocation,Get-ChildItemColor -Scope CurrentUser
 Install-Module PSReadline,oh-my-posh -AllowPrerelease -Scope Current
 Install-Script TabExpansion2 -Scope CurrentUser
 ````
