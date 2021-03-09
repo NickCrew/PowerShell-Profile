@@ -10,7 +10,7 @@
 
 ### FZF 
 ````pwsh
-choc install fzf
+choco install fzf
 Install-Module PSFZF
 ````
 

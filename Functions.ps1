@@ -1,45 +1,17 @@
 
-Set-Alias fdverb Find-Verb
+function Send-InputTo ($target) {
+    # Pipe output to args of $target
+    # i.e. gc foo.txt | to gvim
+    & ${target} $input 
+}
+
+
 function Find-Verb {
 	param ([parameter(position=0)]$verb)
 	return (Get-Verb | ? { $_.Verb -like "*${verb}*" })
 }
 
-Set-Alias ocrmypdf -Value Invoke-OCRMyPDF -Force
-function Invoke-OCRMyPDF  {
-	param (
-		[Parameter(Position=0)]
-		[ValidateScript({Test-Path $_})]
-		[string]$InFile,
-		[Parameter(Position=1)]
-		[string]$OutFile,
-		[Parameter(Position=2)]
-		[string[]]$ArgumentList
-		
-	)
-	$arglist = $ArgumentList -join ' '
 
-	$infilename = Split-Path (Resolve-Path $InFile) -Leaf
-	$context = Split-Path (Resolve-Path $InFile) -Parent
-
-	if (-not($OutFile)) {
-		$basename = Get-Item $InFile | select -ExpandProperty BaseName
-		$outfilename = "${basename}_ocr.pdf"
-		$outdir = Split-Path (Resolve-Path $InFile) -Parent
-		$OutFile = Join-Path $outdir $outfilename
-	}
-	else {
-		$outfilename = Split-Path $OutFile -Leaf
-	}
-
-	&docker run --rm -i `
-		--workdir /data `
-		-v "${context}:/data" `
-		ocrmypdf "/data/${infilename}" "/data/${outfilename}" `
-		$arglist
-	
-	Move-Item (Join-Path $context $outfilename) -Destination $OutFile
-}
 
 function New-Symlink {
 	<#
@@ -109,14 +81,6 @@ function Convert-LineEndings {
     $new | Set-Content $Outfile -Encoding ascii -Force
 }
 
-Set-Alias -Name to -Value Send-InputTo
-function Send-InputTo ($target) {
-    # Pipe output to args of $target
-    # i.e. gc foo.txt | to gvim
-    & ${target} $input 
-}
-
-Set-Alias -Name asadmin -Value Invoke-CommandAsAdmin
 function Invoke-CommandAsAdmin {
     <#
     .SYNOPSIS
@@ -146,8 +110,7 @@ function Invoke-CommandAsAdmin {
 }
 
  
-Set-Alias -Name ocvi -Value Open-ClipboardContentsInGvim
-function Open-ClipboardContentsInGvim {
+function Open-ClipboardContentsInEditor {
     <#
     .SYNOPSIS
         Open the current clipboard contents in GVim. 'ZZ' saves and exits.
@@ -155,7 +118,6 @@ function Open-ClipboardContentsInGvim {
     & gvim +pu+ "+$d" +1 "+nnoremap &lt;buffer&gt; ZZ :%y+&lt;CR&gt;ZQ" "+set nomod"
 }
 
-Set-Alias -Name fp4 -Value Invoke-FuzzyP4Client -Force
 function Invoke-FuzzyP4Client {
     <#
     .SYNOPSIS
@@ -312,7 +274,6 @@ function Start-ShellTranscript {
 }
 
 
-Set-Alias -Name fdproc -Value Find-Process -Force
 function Find-Process {
     <#
     .SYNOPSIS
@@ -336,11 +297,16 @@ function rgf ($arg) {
     <#
     .SYNOPSIS
         Use Ripgrep to search for filenames
+	.DESCRIPTION
+		Works by first getting full list of file names
+		and then piping back into ripgrep.
+		You can get a lot more power still by using 
+		--PATTERN with --files but at that point just 
+		do it yourself.
     #>
 	rg --files | rg $arg
 }
 
-Set-Alias -Name obliterate -Value Remove-ItemRecursiveForced -Force
 function Remove-ItemRecursiveForced ($Path) {
     <#
     .SYNOPSIS
@@ -351,12 +317,11 @@ function Remove-ItemRecursiveForced ($Path) {
 }
 
 
-Set-Alias -Name frg -Value Invoke-FuzzyRgEdit -Force
 function Invoke-FuzzyRgEdit {
-<#
-.SYNOPSIS
-    Pipes results of rg into fzf and opens the selection in $EDITOR
-#>
+	<#
+	.SYNOPSIS
+		Pipes results of rg into fzf and opens the selection in $EDITOR
+	#>
     [CmdletBinding()]
     param (
         # Pattern
@@ -367,7 +332,7 @@ function Invoke-FuzzyRgEdit {
         # Editor
         [Parameter()]
         [string]
-        $Editor = (& { if ($Env:Editor) { $Env:Editor } else { 'gvim' } }),
+        $Editor = ($Env:Editor) ? ($Env:Editor) : ('gvim'),
 
         # Search file names
         [Parameter()]
@@ -379,5 +344,14 @@ function Invoke-FuzzyRgEdit {
     else { & ${Editor} $((rg $Pattern | fzf).Split(":")[0]) }
 }
 
-# Other Aliases
-Set-Alias -Name sclip -Value Set-Clipboard -Force
+Set-Alias -Name rg -Value (Join-Path $PSScriptRoot) 'bin/rg.exe'
+Set-Alias -Name frg -Value Invoke-FuzzyRgEdit 
+Set-Alias -Name sclip -Value Set-Clipboard 
+Set-Alias -Name ocvi -Value Open-ClipboardContentsInEditor
+Set-Alias -Name oced -Value Open-ClipboardContentsInEditor
+Set-Alias -Name fp4 -Value Invoke-FuzzyP4Client
+Set-Alias -Name to -Value Send-InputTo
+Set-Alias -Name fdverb -Value Find-Verb
+Set-Alias -Name obliterate -Value Remove-ItemRecursiveForced
+Set-Alias -Name asadmin -Value Invoke-CommandAsAdmin
+Set-Alias -Name fdproc -Value Find-Process

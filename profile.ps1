@@ -26,6 +26,8 @@ Set-Alias -Name co -Value code-insiders.cmd -Force
 # this could go in CurrentUserCurrentHost but I like having it in VSCode terminal
 Remove-PSReadlineKeyHandler 'Ctrl+r'
 Remove-PSReadLineKeyHandler 'Alt+c'
+
+Set-Alias fzf (Join-Path $PSScriptRoot 'bin/fzf.exe')
 Import-Module PSFZF
 
 # replace standard tab completion with FZF completion
