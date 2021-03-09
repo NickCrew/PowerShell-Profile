@@ -6,15 +6,27 @@
 3. CurrentUserAllHosts
 4. CurrentUserCurrentHost
 
-## External Dependencies
+## Module and Script Dependencies
 
-### FZF 
-````pwsh
-choco install fzf
-Install-Module PSFZF
+I like running the betas for PSReadline and oh-my-posh because there's a lot of cool stuff being added all the time.
+
+````powershell
+Install-Module Posh-git,PSFZF,Get-ChildItemColor,zlocation -Scope CurrentUser
+Install-Module PSReadline,oh-my-posh -AllowPrerelease -Scope Current
+Install-Script TabExpansion2 -Scope CurrentUser
 ````
 
-### RipGrep
+## External Dependencies
+
+- `fzf` (fuzzy finder)
+- `rg` (ripgrep)
+
+Both `fzf` and `rg` are under `bin/` with aliases set in the profiles but if you want to install them anyway:  
+
+````pwsh
+choco install fzf
+````
+
 ````pwsh
 choco install ripgrep
 ````
