@@ -1,4 +1,76 @@
 
+Set-Alias fdverb Find-Verb
+function Find-Verb {
+	param ([parameter(position=0)]$verb)
+	return (Get-Verb | ? { $_.Verb -like "*${verb}*" })
+}
+
+Set-Alias ocrmypdf -Value Invoke-OCRMyPDF -Force
+function Invoke-OCRMyPDF  {
+	param (
+		[Parameter(Position=0)]
+		[ValidateScript({Test-Path $_})]
+		[string]$InFile,
+		[Parameter(Position=1)]
+		[string]$OutFile,
+		[Parameter(Position=2)]
+		[string[]]$ArgumentList
+		
+	)
+	$arglist = $ArgumentList -join ' '
+
+	$infilename = Split-Path (Resolve-Path $InFile) -Leaf
+	$context = Split-Path (Resolve-Path $InFile) -Parent
+
+	if (-not($OutFile)) {
+		$basename = Get-Item $InFile | select -ExpandProperty BaseName
+		$outfilename = "${basename}_ocr.pdf"
+		$outdir = Split-Path (Resolve-Path $InFile) -Parent
+		$OutFile = Join-Path $outdir $outfilename
+	}
+	else {
+		$outfilename = Split-Path $OutFile -Leaf
+	}
+
+	&docker run --rm -i `
+		--workdir /data `
+		-v "${context}:/data" `
+		ocrmypdf "/data/${infilename}" "/data/${outfilename}" `
+		$arglist
+	
+	Move-Item (Join-Path $context $outfilename) -Destination $OutFile
+}
+
+function New-Symlink {
+	<#
+	.SYNOPSIS
+		Create a new symbolic link
+	#>
+	param (
+		# Create symlink here
+		[Parameter(Position = 0, Mandatory = $true)]
+		[string]
+		$Destination,
+
+		# Link to this file
+		[Parameter(Position = 1, Mandatory = $true)]
+		[ValidateScript({Test-Path $_})]
+		[string]
+		$Target,
+
+		# If destination exists, overwrite it
+		[Parameter()]
+		[switch]
+		$Force
+	)
+
+	if (Test-Path $Destination -and -not($Force)) {
+		throw "${Destination} already exists. Use -Force to overwrite"
+	}
+
+	& cmd /c mklink $Destination $Target
+}
+
 function Convert-LineEndings {
 	<#
 	.SYNOPSIS
@@ -269,18 +341,13 @@ function rgf ($arg) {
 }
 
 Set-Alias -Name obliterate -Value Remove-ItemRecursiveForced -Force
-function Remove-ItemRecursiveForced ($arg) {
+function Remove-ItemRecursiveForced ($Path) {
     <#
     .SYNOPSIS
         Recursively and forcefully removing all sub-directories and files under $arg
     #>
-	$p = @{
-		Path    = $arg
-		Force   = $true
-		Recurse = $true
-		Confirm = $true
-	}
-	Remove-Item @p
+	$p = (Resolve-Path $Path).Path
+	Remove-Item $p -Force -Recurse
 }
 
 

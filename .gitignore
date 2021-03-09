@@ -1,7 +1,5 @@
+winserver1.admin.clixml
+Microsoft.VSCode_profile.ps1
+Help/
 Modules/
 Scripts/
-**/pshistory.xml
-**/*.log
-Transcripts/
-.DS_Store
-Vispero.*

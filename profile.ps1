@@ -1,10 +1,16 @@
-######################################################
+# #####################################################
+#
 # Name: profile.ps1
 # Profile: CurrentUserAllHosts
-# Loads after: AllUsers, AllHosts
-# Loads before: CurrentUserCurrentHost
 # PSVersion: 7
-######################################################
+#
+# Profile Load Order: 
+#     - AllUsersAllHosts
+#     - AllUsersCurrentHost 
+#     - CurrentUserAllHosts 
+#     - CurrentUserCurrentHost
+#
+# #####################################################
 
 # PSReadline
 Set-PSReadlineOption -EditMode vi 
@@ -13,13 +19,28 @@ Set-PSReadlineKeyHandler -Chord Ctrl+Alt+s -Function SwapCharacters
 Set-PSReadlineKeyHandler -Key Alt+r -Function ViSearchHistoryBackward
 Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 
-# Completion
-TabExpansion2.ps1
-Invoke-Build.ArgumentCompleters.ps1
-gci "${PSScriptRoot}/Shared/Completions" -Filter *.ps1 -Recurse | % { . $_.FullName }
+. "${PSScriptRoot}/Functions.ps1"
 
-#region conda initialize
-# !! Contents within this block are managed by 'conda init' !!
-(& "C:\Users\ncf42\anaconda3\Scripts\conda.exe" "shell.powershell" "hook") | Out-String | Invoke-Expression
-#endregion
+Set-Alias -Name co -Value code-insiders.cmd -Force
 
+# this could go in CurrentUserCurrentHost but I like having it in VSCode terminal
+Remove-PSReadlineKeyHandler 'Ctrl+r'
+Remove-PSReadLineKeyHandler 'Alt+c'
+Import-Module PSFZF
+
+# replace standard tab completion with FZF completion
+#Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
+
+Set-PsFzfOption -PSReadlineChordReverseHistory 'Ctrl+r'
+Set-PsFzfOption -PSReadlineChordProvider 'Alt+c'
+Set-PsFzfOption -TabExpansion
+Set-PsFzfOption -EnableAliasFuzzyEdit
+Set-PsFzfOption -EnableAliasFuzzyHistory
+Set-PsFzfOption -EnableAliasFuzzyKillProcess
+Set-PsFzfOption -EnableAliasFuzzySetLocation
+Set-PsFzfOption -EnableAliasFuzzySetEverything
+Set-PsFzfOption -EnableAliasFuzzyZLocation
+Set-PsFzfOption -EnableAliasFuzzyGitStatus
+
+Import-Module Get-ChildItemColor
+Import-Module zlocation
